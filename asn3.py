@@ -1,4 +1,4 @@
-from operator import concat, neg
+from operator import concat, index, neg
 from os import system
 import random
 import numpy
@@ -56,7 +56,6 @@ def initializeNetwork(terminalArguement):
 
 def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     for node in inputLayer:
-        print(node)
         for i in range(10):
             node.weights.append(round(random.random(),2)) 
     for node in hiddenLayer:
@@ -69,18 +68,32 @@ def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
 def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     answer = []
     file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")
+    outputFile = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","w")
     lines = file.readlines()
-    indexInput = 0
+    indexInput = 1
     for line in lines:
+        indexInput = 1
         for word in line.split():
             if(len(word)) == 6: #making sure we dont include the last three numbers in each line
-                inputLayer[indexInput].value = int(word)
+                inputLayer[indexInput].value = int(float(word))
                 indexInput += 1
             else: ##getting test result
-                answer.append[word]
-                if len(answer) == 3:
-                    print(answer)
-                
+                answer.append(word)
+                if len(answer) == 3: #values have been inputted
+                    testRound = passForward(inputLayer, hiddenLayer, outputLayer, terminalArguement)
+   
+
+def passForward(inputLayer, hiddenLayer, outPutLayer, terminalArguement):
+    nodeNumber = 0
+    for hiddenNode in hiddenLayer: 
+        if hiddenNode.value != -1:
+            for inputNode in inputLayer: #need to not include bias node
+                hiddenNode.value += (inputNode.value * inputNode.weights[nodeNumber])
+            nodeNumber += 1
+            hiddenNode.value = sigmoid(hiddenNode.value)
+    for x in hiddenLayer:
+        print(x.value)
+
 #print(round(random.random(),2))
 initializeNetwork(["train.txt", "otherfile"])
 #forwardPassingNetwork(sys.argv)
