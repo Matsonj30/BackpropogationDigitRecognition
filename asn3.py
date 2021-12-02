@@ -1,3 +1,4 @@
+from operator import concat, neg
 from os import system
 import random
 import numpy
@@ -34,26 +35,52 @@ class Node:
         self.value = value
         self.weights = []
 
-def forwardPassingNetwork(terminalArguement):
+def sigmoid(value):
+    return 1/(1+ numpy.exp(neg(value)))
+
+def initializeNetwork(terminalArguement):
     inputLayer = []
-    awnser = []
-    if terminalArguement[0] == "train.txt":
-        file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")
-    else:
-        file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0], "r")
+    hiddenLayer = []
+    outputLayer = []
+    inputLayer.append(Node(-1)) #bias node for input layer
+    hiddenLayer.append(Node(-1)) #bias node for hidden layer
+    for inputNode in range(256): #number of input nodes
+        inputLayer.append(Node(-1))
+    for hiddenNode in range(10): #number of hidden nodes
+        hiddenLayer.append(Node(-1))
+    for outputNode in range(3): #number of output nodes
+        outputLayer.append(Node(-1)) 
+    
+    initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement)
+
+
+def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
+    for node in inputLayer:
+        print(node)
+        for i in range(10):
+            node.weights.append(round(random.random(),2)) 
+    for node in hiddenLayer:
+        for i in range(3):
+            node.weights.append(round(random.random(),2))
+    trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement)
+    
+
+
+def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
+    answer = []
+    file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")
     lines = file.readlines()
+    indexInput = 0
     for line in lines:
         for word in line.split():
             if(len(word)) == 6: #making sure we dont include the last three numbers in each line
-                inputLayer.append(Node(word[0]))
-                for i in range(10):
-                    inputLayer[len(inputLayer)-1].weights.append(round(random.random(),2))
-                print(inputLayer[0].weights)
+                inputLayer[indexInput].value = int(word)
+                indexInput += 1
             else: ##getting test result
-                awnser.append[word]
-                if len(awnser) == 3:
-                    print("WTF")
+                answer.append[word]
+                if len(answer) == 3:
+                    print(answer)
                 
 #print(round(random.random(),2))
-forwardPassingNetwork(["train.txt", "otherfile"])
+initializeNetwork(["train.txt", "otherfile"])
 #forwardPassingNetwork(sys.argv)
