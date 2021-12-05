@@ -34,9 +34,15 @@ class Node:
     def __init__(self, value) -> None:
         self.value = value
         self.weights = []
+        self.delta = 0 #*** Can this be zero? ***
+        self.sigmoid = None
+
 
 def sigmoid(value):
     return 1/(1+ numpy.exp(neg(value)))
+
+def FPrime(sigmoidValue):
+    return(sigmoidValue*(1-sigmoidValue))
 
 def initializeNetwork(terminalArguement):
     inputLayer = []
@@ -67,8 +73,10 @@ def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
 
 def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     answer = []
-    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")#desktop
-    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
+    actualOutput = -1
+    expectedOutput = -1
+    #file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")#desktop
+    file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
     #outputFile = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","w")
     lines = file.readlines()
     indexInput = 1
@@ -81,10 +89,36 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
             else: ##getting test result
                 answer.append(word)
                 if len(answer) == 3: #values have been inputted
-                    testRound = passForward(inputLayer, hiddenLayer, outputLayer, terminalArguement)
-                    print(testRound)
+                    if answer == ['1','0','0']:
+                        expectedOutput = 0 #index of what the highest probability should be
+                    elif answer == ['0','1','0']:
+                        expectedOutput = 1
+                    elif answer == ['0','0','1']:
+                        expectedOutput = 2
+                    actualOutput = passForward(inputLayer, hiddenLayer, outputLayer)
+                    if expectedOutput == actualOutput.index(max(actualOutput)):#the program correctly guessed the output
+                        print("Correct")
+                        continue
+                    else:
+                        print("Not correct")
+                        print(inputLayer[5].value)
+                        print(hiddenLayer[4].value)
+                        #backPropogation(inputLayer,hiddenLayer,outputLayer, actualOutput, awnser)
 
-def passForward(inputLayer, hiddenLayer, outPutLayer, terminalArguement):
+def backPropogation(inputLayer,hiddenLayer,outputLayer, actualOutput, expectedOutput):
+    alpha = 0.1
+    nodeIndex = 0 #iterate to determine which error values go to which output node
+    for outputNode in outputLayer: #determine delta values at output first, then work backwards
+        errorValue = outputNode.value - expectedOutput[nodeIndex].value #expected - actual
+        outputNode.delta = FPrime(outputNode.value)*errorValue
+        nodeIndex += 1
+    nodeIndex = 0
+    for hiddenNode in hiddenLayer: #reset delta values after??
+        for outputNode in outputLayer:
+            hiddenNode.delta += FPrime(hiddenNode.value) * outputNode.delta * hiddenNode.weights[nodeIndex] ##probably wrong
+        
+
+def passForward(inputLayer, hiddenLayer, outPutLayer):
     outputAnswers = []
     nodeNumber = 0
     #pass forward to hidden layer
@@ -94,8 +128,7 @@ def passForward(inputLayer, hiddenLayer, outPutLayer, terminalArguement):
                 hiddenNode.value += (inputNode.value * inputNode.weights[nodeNumber]) 
             nodeNumber += 1
             hiddenNode.value = sigmoid(hiddenNode.value)
-    #for node in hiddenLayer:
-    #    print(node.value)
+  
     #pass forward to output layer        
     nodeNumber = 0
     for outputNode in outPutLayer:
@@ -106,9 +139,6 @@ def passForward(inputLayer, hiddenLayer, outPutLayer, terminalArguement):
         outputAnswers.append(outputNode.value) #[0] = 1 [1] = 8 [2] = 9
     return(outputAnswers)
     
-    print(outputAnswers)
-    print(outputAnswers.index(max(outputAnswers)))
-
 #print(round(random.random(),2))
 initializeNetwork(["train.txt", "otherfile"])
 #forwardPassingNetwork(sys.argv)
