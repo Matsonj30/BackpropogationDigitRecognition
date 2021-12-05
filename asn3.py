@@ -45,11 +45,11 @@ def initializeNetwork(terminalArguement):
     inputLayer.append(Node(-1)) #bias node for input layer
     hiddenLayer.append(Node(-1)) #bias node for hidden layer
     for inputNode in range(256): #number of input nodes
-        inputLayer.append(Node(-1))
+        inputLayer.append(Node(-2))
     for hiddenNode in range(10): #number of hidden nodes
-        hiddenLayer.append(Node(-1))
+        hiddenLayer.append(Node(-2))
     for outputNode in range(3): #number of output nodes
-        outputLayer.append(Node(-1)) 
+        outputLayer.append(Node(0)) 
     
     initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement)
 
@@ -57,18 +57,19 @@ def initializeNetwork(terminalArguement):
 def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     for node in inputLayer:
         for i in range(10):
-            node.weights.append(round(random.random(),2)) 
+            node.weights.append(round(random.uniform(0,0.5),2)) 
     for node in hiddenLayer:
         for i in range(3):
-            node.weights.append(round(random.random(),2))
+            node.weights.append(round(random.uniform(0,0.5),2))
     trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement)
     
 
 
 def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     answer = []
-    file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")
-    outputFile = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","w")
+    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")#desktop
+    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
+    #outputFile = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","w")
     lines = file.readlines()
     indexInput = 1
     for line in lines:
@@ -81,18 +82,32 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
                 answer.append(word)
                 if len(answer) == 3: #values have been inputted
                     testRound = passForward(inputLayer, hiddenLayer, outputLayer, terminalArguement)
-   
+                    print(testRound)
 
 def passForward(inputLayer, hiddenLayer, outPutLayer, terminalArguement):
+    outputAnswers = []
     nodeNumber = 0
+    #pass forward to hidden layer
     for hiddenNode in hiddenLayer: 
         if hiddenNode.value != -1:
             for inputNode in inputLayer: #need to not include bias node
-                hiddenNode.value += (inputNode.value * inputNode.weights[nodeNumber])
+                hiddenNode.value += (inputNode.value * inputNode.weights[nodeNumber]) 
             nodeNumber += 1
             hiddenNode.value = sigmoid(hiddenNode.value)
-    for x in hiddenLayer:
-        print(x.value)
+    #for node in hiddenLayer:
+    #    print(node.value)
+    #pass forward to output layer        
+    nodeNumber = 0
+    for outputNode in outPutLayer:
+        for hiddenNode in hiddenLayer:
+            outputNode.value += (hiddenNode.value * hiddenNode.weights[nodeNumber])
+        nodeNumber += 1
+        outputNode.value = sigmoid(outputNode.value)
+        outputAnswers.append(outputNode.value) #[0] = 1 [1] = 8 [2] = 9
+    return(outputAnswers)
+    
+    print(outputAnswers)
+    print(outputAnswers.index(max(outputAnswers)))
 
 #print(round(random.random(),2))
 initializeNetwork(["train.txt", "otherfile"])
