@@ -69,8 +69,9 @@ def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
             node.weights.append(round(random.uniform(0,0.5),2))
     trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement)
     
-
-
+def writeToFile(expectedOutputIndex, ActualOutputIndex):
+    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt","w")#desktop
+    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt", "w") #laptop
 def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     answer = []
     actualOutput = -1
@@ -96,7 +97,7 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
                     elif answer == ['0','0','1']:
                         expectedOutput = 2
                     actualOutput = passForward(inputLayer, hiddenLayer, outputLayer)
-                    writeToFile() ##start here by writing to file
+                    writeToFile(expectedOutput, actualOutput.index(max(actualOutput))) ##start here by writing to file
                     if expectedOutput == actualOutput.index(max(actualOutput)):#the program correctly guessed the output
                         print("Correct")
                         continue
