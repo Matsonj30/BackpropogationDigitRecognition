@@ -70,19 +70,43 @@ def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement)
     
 def writeToFile(expectedOutputIndex, ActualOutputIndex):
-    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt","w")#desktop
-    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt", "w") #laptop
+    #file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt","a")#desktop
+    file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt", "a") #laptop
+    file.write("\n")
+    if(ActualOutputIndex == 0):
+        file.write("1\n")
+    elif(ActualOutputIndex == 1):
+        file.write("7\n")
+    elif(ActualOutputIndex == 2):
+        file.write("8\n")
+
+    if(expectedOutputIndex == 0):
+        file.write("                       1")
+    elif(expectedOutputIndex == 1):
+        file.write("                       7")
+    elif(expectedOutputIndex == 2):
+        file.write("                       8")
+    file.close() #have to put the counter somehwere I guess?
+
 def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
+    #fileToWrite = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt","w")#desktop
+    fileToWrite = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt", "w") #laptop
+    fileToWrite.write("my_predicted_digit   target(correct digit)")
+    fileToWrite.close()
     answer = []
     actualOutput = -1
     expectedOutput = -1
+    correctlyClassified = 0
+    numberOfClassifications = 0
+
     file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")#desktop
     #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
-    #outputFile = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","w")
+    
     lines = file.readlines()
     indexInput = 1
     for line in lines:
         indexInput = 1
+        numberOfClassifications += 1 #per input
         for word in line.split():
             if(len(word)) == 6: #making sure we dont include the last three numbers in each line
                 inputLayer[indexInput].value = int(float(word))
@@ -99,10 +123,12 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
                     actualOutput = passForward(inputLayer, hiddenLayer, outputLayer)
                     writeToFile(expectedOutput, actualOutput.index(max(actualOutput))) ##start here by writing to file
                     if expectedOutput == actualOutput.index(max(actualOutput)):#the program correctly guessed the output
+                        correctlyClassified += 1
                         print("Correct")
                         continue
                     else:
                         print("Not correct")
+    print(correctlyClassified / numberOfClassifications)
 
                         #backPropogation(inputLayer,hiddenLayer,outputLayer, actualOutput, awnser)
 
@@ -162,7 +188,6 @@ def passForward(inputLayer, hiddenLayer, outputLayer): #reset values again someh
         if nodeNumber !=0:
             node.value = 0 #initialize each value to zero to start the iteration
         nodeNumber+=1
-
     for node in outputLayer:
         node.value = 0 #same thing
 
