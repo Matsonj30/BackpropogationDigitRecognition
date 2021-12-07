@@ -1,8 +1,9 @@
 from operator import concat, index, neg
-from os import system
+from os import system, write
 import random
 import numpy
 import sys
+import copy
 
 # Output is 0.12 and 0.2, but the actual output is 1 and 0. We will calculate the errors, and the w values will be adjusted off them (big error, big weight change and if small error, small weigh change)
 # Have to adjust weight values for hidden layers too, but can not calculate errors the same way in the hidden layers since they dont have a right value
@@ -63,34 +64,34 @@ def initializeNetwork(terminalArguement):
 def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     for node in inputLayer:
         for i in range(10):
-            node.weights.append(round(random.uniform(0,0.5),2)) 
+            node.weights.append(round(random.uniform(0,0.1),2)) 
     for node in hiddenLayer:
         for i in range(3):
-            node.weights.append(round(random.uniform(0,0.5),2))
+            node.weights.append(round(random.uniform(0,0.05),2))
     trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement)
     
 def writeToFile(expectedOutputIndex, ActualOutputIndex):
-    #file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt","a")#desktop
-    file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt", "a") #laptop
-    file.write("\n")
+    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","a")#desktop
+    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "a") #laptop
     if(ActualOutputIndex == 0):
-        file.write("1\n")
+        file.write("1")
     elif(ActualOutputIndex == 1):
-        file.write("7\n")
+        file.write("7")
     elif(ActualOutputIndex == 2):
-        file.write("8\n")
+        file.write("8")
 
     if(expectedOutputIndex == 0):
-        file.write("                       1")
+        file.write("                           1\n")
     elif(expectedOutputIndex == 1):
-        file.write("                       7")
+        file.write("                           7\n")
     elif(expectedOutputIndex == 2):
-        file.write("                       8")
+        file.write("                           8\n")
     file.close() #have to put the counter somehwere I guess?
 
 def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
-    #fileToWrite = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt","w")#desktop
-    fileToWrite = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt", "w") #laptop
+    print(inputLayer[0].weights)
+    fileToWrite = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","w")#desktop
+    #fileToWrite = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "w") #laptop
     fileToWrite.write("my_predicted_digit   target(correct digit)")
     fileToWrite.close()
     answer = []
@@ -98,13 +99,13 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     expectedOutput = -1
     correctlyClassified = 0
     numberOfClassifications = 0
-
     file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")#desktop
     #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
-    
+
     lines = file.readlines()
     indexInput = 1
     for line in lines:
+        answer = []
         indexInput = 1
         numberOfClassifications += 1 #per input
         for word in line.split():
@@ -124,15 +125,26 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
                     writeToFile(expectedOutput, actualOutput.index(max(actualOutput))) ##start here by writing to file
                     if expectedOutput == actualOutput.index(max(actualOutput)):#the program correctly guessed the output
                         correctlyClassified += 1
-                        print("Correct")
+                 #       print("Correct")
                         continue
                     else:
-                        print("Not correct")
+                #        print("Incorrect")
+                        newValues = backPropogation(inputLayer, hiddenLayer, outputLayer, answer)
+
     print(correctlyClassified / numberOfClassifications)
+    if(correctlyClassified / numberOfClassifications < 0.9):
+        trainNetwork(newValues[0], newValues[1], newValues[2], terminalArguement)
+    else:
+        testNetwork(newValues[0], newValues[1], newValues[2], terminalArguement)
+
+def testNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
+    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")#desktop
+    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
+    
 
                         #backPropogation(inputLayer,hiddenLayer,outputLayer, actualOutput, awnser)
 
-def backPropogation(inputLayer,hiddenLayer,outputLayer, actualOutput, expectedOutput):
+def backPropogation(inputLayer,hiddenLayer,outputLayer, expectedOutput):
     delta = 0
     nodeIndex = 0 #iterate to determine which error values go to which output node
     for outputNode in outputLayer: #determine delta values at output first, then work backwards
@@ -146,10 +158,7 @@ def backPropogation(inputLayer,hiddenLayer,outputLayer, actualOutput, expectedOu
         nodeIndex = 0
         delta = 0
         if biasNode == True:
-            for outputNode in outputLayer:
-                #print(FPrime(sigmoid(hiddenNode.value)))
-                #print(outputNode.delta)
-                #print(hiddenNode.weights[nodeIndex])
+            for outputNode in outputLayer: 
                 delta += (FPrime(sigmoid(hiddenNode.value)) * outputNode.delta * hiddenNode.weights[nodeIndex]) ##probably wrong
                 nodeIndex += 1
             biasNode = False
@@ -160,27 +169,32 @@ def backPropogation(inputLayer,hiddenLayer,outputLayer, actualOutput, expectedOu
                 
                 nodeIndex += 1
             hiddenNode.delta = delta
-    
-   # for f in hiddenLayer:
-    #    print(f.delta)
-    changeWeights(inputLayer,hiddenLayer,outputLayer, actualOutput, expectedOutput)
+    return(changeWeights(inputLayer,hiddenLayer,outputLayer))
     #don't need delta in input layers, can just go on to changing weights now
 
 
-def changeWeights(inputLayer,hiddenLayer,outputLayer, actualOutput, expectedOutput):
-    alpha = 0.1
+def changeWeights(inputLayer,hiddenLayer,outputLayer):
+    alpha = 2
+    inputLayerCopy = copy.deepcopy(inputLayer)
+    hiddenLayerCopy = copy.deepcopy(hiddenLayer)
+    outputLayerCopy = copy.deepcopy(outputLayer)
     #change weights in input layer first
-    for inputNode in inputLayer:
+    for inputNode in inputLayerCopy:
         nodeIndex = 0
-        for hiddenNode in hiddenLayer:
-            inputNode.weights[nodeIndex] = inputNode.weights[nodeIndex] + (alpha * hiddenNode.delta * inputNode.value)
-            nodeIndex += 1
+        for hiddenNode in hiddenLayerCopy:
+            if(hiddenNode.value) == -1:
+                continue
+            else:
+                inputNode.weights[nodeIndex] = inputNode.weights[nodeIndex] + (alpha * hiddenNode.delta * inputNode.value)
+                nodeIndex += 1
 
-    for hiddenNode in hiddenLayer:
+    for hiddenNode in hiddenLayerCopy:
         nodeIndex = 0
-        for outputNode in outputLayer:
+        for outputNode in outputLayerCopy:
             hiddenNode.weights[nodeIndex] = hiddenNode.weights[nodeIndex] + (alpha * outputNode.delta * hiddenNode.value)
             nodeIndex += 1
+
+    return(inputLayerCopy,hiddenLayerCopy, outputLayerCopy)
 
 def passForward(inputLayer, hiddenLayer, outputLayer): #reset values again somehow
     nodeNumber = 0
@@ -213,7 +227,7 @@ def passForward(inputLayer, hiddenLayer, outputLayer): #reset values again someh
     return(outputAnswers)
     
 #print(round(random.random(),2))
-#initializeNetwork(["train.txt", "otherfile"])
+initializeNetwork(["train.txt", "otherfile"])
 #forwardPassingNetwork(sys.argv)
 
 inputLayer = []
@@ -243,6 +257,6 @@ outputLayer.append(Node(None))
 
 #print(passForward(inputLayer, hiddenLayer, outputLayer))
 
-passForward(inputLayer,hiddenLayer, outputLayer)
+#passForward(inputLayer,hiddenLayer, outputLayer)
 
-backPropogation(inputLayer,hiddenLayer,outputLayer,[], ['0','0','1'])
+#backPropogation(inputLayer,hiddenLayer,outputLayer,[], ['0','0','1'])
