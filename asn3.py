@@ -64,15 +64,15 @@ def initializeNetwork(terminalArguement):
 def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     for node in inputLayer:
         for i in range(10):
-            node.weights.append(round(random.uniform(0,0.1),2)) #before it was 0,0.1
+            node.weights.append(round(random.uniform(0,0.05),5)) #before it was 0,0.1
     for node in hiddenLayer:
         for i in range(3):
-            node.weights.append(round(random.uniform(0,0.05),2))  #before it was 0,0.05
-    trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement)
+            node.weights.append(round(random.uniform(0,0.05),5))  #before it was 0,0.05
+    trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement, 0)
     
 def writeToFile(expectedOutputIndex, ActualOutputIndex):
-    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","a")#desktop
-    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "a") #laptop
+    #file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","a")#desktop
+    file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "a") #laptop
     if(ActualOutputIndex == 0):
         file.write("1")
     elif(ActualOutputIndex == 1):
@@ -88,10 +88,11 @@ def writeToFile(expectedOutputIndex, ActualOutputIndex):
         file.write("                           9\n")
     file.close() #have to put the counter somehwere I guess?
 
-def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
+def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement, epochNumber):
+    epochNumber += 1
     print(inputLayer[0].weights)
-    fileToWrite = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","w")#desktop
-    #fileToWrite = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "w") #laptop
+    #fileToWrite = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","w")#desktop
+    fileToWrite = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "w") #laptop
     fileToWrite.write("my_predicted_digit   target(correct digit)")
     fileToWrite.close()
     answer = []
@@ -99,8 +100,8 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     expectedOutput = -1
     correctlyClassified = 0
     numberOfClassifications = 0
-    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")#desktop
-    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
+    #file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")#desktop
+    file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
 
     lines = file.readlines()
     for line in lines:
@@ -131,16 +132,21 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
                         newValues = backPropogation(inputLayer, hiddenLayer, outputLayer, answer)
 
     print(correctlyClassified / numberOfClassifications)
-    if(correctlyClassified / numberOfClassifications < 0.9):
-        trainNetwork(newValues[0], newValues[1], newValues[2], terminalArguement)
+    if(correctlyClassified / numberOfClassifications < 0.91):
+        trainNetwork(newValues[0], newValues[1], newValues[2], terminalArguement, epochNumber)
     else:
+        file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "a") #laptop
+        #file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt","a")#desktop
+        file.write("Accuracy: " + str(correctlyClassified) +"/" +str(numberOfClassifications) +" = "+str(((correctlyClassified/numberOfClassifications) * 100)))
+        file.close()
+        print(epochNumber)
         testNetwork(newValues[0], newValues[1], newValues[2], terminalArguement[1])
 
 def testNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
-    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement,"r")#desktop
-    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
-    fileToWrite = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt","w")#desktop
-    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "a") #laptop
+    #file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement,"r")#desktop
+    file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement,"r") #laptop
+    #fileToWrite = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt","w")#desktop
+    fileToWrite = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt", "w") #laptop
     lines = file.readlines()
     for line in lines:
         indexInput = 1
@@ -185,7 +191,7 @@ def backPropogation(inputLayer,hiddenLayer,outputLayer, expectedOutput):
 
 
 def changeWeights(inputLayer,hiddenLayer,outputLayer):
-    alpha = 1
+    alpha = 1 #1 = 
     inputLayerCopy = copy.deepcopy(inputLayer)
     hiddenLayerCopy = copy.deepcopy(hiddenLayer)
     outputLayerCopy = copy.deepcopy(outputLayer)
