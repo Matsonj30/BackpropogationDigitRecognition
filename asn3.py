@@ -64,10 +64,10 @@ def initializeNetwork(terminalArguement):
 def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     for node in inputLayer:
         for i in range(10):
-            node.weights.append(round(random.uniform(0,0.1),2)) 
+            node.weights.append(round(random.uniform(0,0.1),2)) #before it was 0,0.1
     for node in hiddenLayer:
         for i in range(3):
-            node.weights.append(round(random.uniform(0,0.05),2))
+            node.weights.append(round(random.uniform(0,0.05),2))  #before it was 0,0.05
     trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement)
     
 def writeToFile(expectedOutputIndex, ActualOutputIndex):
@@ -76,16 +76,16 @@ def writeToFile(expectedOutputIndex, ActualOutputIndex):
     if(ActualOutputIndex == 0):
         file.write("1")
     elif(ActualOutputIndex == 1):
-        file.write("7")
-    elif(ActualOutputIndex == 2):
         file.write("8")
+    elif(ActualOutputIndex == 2):
+        file.write("9")
 
     if(expectedOutputIndex == 0):
         file.write("                           1\n")
     elif(expectedOutputIndex == 1):
-        file.write("                           7\n")
-    elif(expectedOutputIndex == 2):
         file.write("                           8\n")
+    elif(expectedOutputIndex == 2):
+        file.write("                           9\n")
     file.close() #have to put the counter somehwere I guess?
 
 def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
@@ -103,7 +103,6 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
 
     lines = file.readlines()
-    indexInput = 1
     for line in lines:
         answer = []
         indexInput = 1
@@ -135,15 +134,27 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     if(correctlyClassified / numberOfClassifications < 0.9):
         trainNetwork(newValues[0], newValues[1], newValues[2], terminalArguement)
     else:
-        testNetwork(newValues[0], newValues[1], newValues[2], terminalArguement)
+        testNetwork(newValues[0], newValues[1], newValues[2], terminalArguement[1])
 
 def testNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement):
-    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r")#desktop
+    file = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement,"r")#desktop
     #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/"+terminalArguement[0],"r") #laptop
-    
-
-                        #backPropogation(inputLayer,hiddenLayer,outputLayer, actualOutput, awnser)
-
+    fileToWrite = open("D:/Programming/Repositories/BackpropogationDigitRecognition/BackpropogationDigitRecognition/test_output.txt","w")#desktop
+    #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "a") #laptop
+    lines = file.readlines()
+    for line in lines:
+        indexInput = 1
+        for word in line.split():
+            inputLayer[indexInput].value = int(float(word))
+            indexInput += 1
+        actualOutput = passForward(inputLayer, hiddenLayer, outputLayer)
+        numberToWrite = actualOutput.index(max(actualOutput))
+        if(numberToWrite == 0):
+            fileToWrite.write("1\n")
+        elif(numberToWrite == 1):
+            fileToWrite.write("8\n")
+        elif(numberToWrite == 2):
+            fileToWrite.write("9\n")
 def backPropogation(inputLayer,hiddenLayer,outputLayer, expectedOutput):
     delta = 0
     nodeIndex = 0 #iterate to determine which error values go to which output node
@@ -174,7 +185,7 @@ def backPropogation(inputLayer,hiddenLayer,outputLayer, expectedOutput):
 
 
 def changeWeights(inputLayer,hiddenLayer,outputLayer):
-    alpha = 2
+    alpha = 1
     inputLayerCopy = copy.deepcopy(inputLayer)
     hiddenLayerCopy = copy.deepcopy(hiddenLayer)
     outputLayerCopy = copy.deepcopy(outputLayer)
@@ -227,7 +238,7 @@ def passForward(inputLayer, hiddenLayer, outputLayer): #reset values again someh
     return(outputAnswers)
     
 #print(round(random.random(),2))
-initializeNetwork(["train.txt", "otherfile"])
+initializeNetwork(["train.txt", "test.txt"])
 #forwardPassingNetwork(sys.argv)
 
 inputLayer = []
