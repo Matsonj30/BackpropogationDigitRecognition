@@ -4,41 +4,27 @@ import random
 import numpy
 import sys
 import copy
-
 from numpy.core.records import array
+#asn3.py
+#Jared Matson
+#1570490
 
-# Output is 0.12 and 0.2, but the actual output is 1 and 0. We will calculate the errors, and the w values will be adjusted off them (big error, big weight change and if small error, small weigh change)
-# Have to adjust weight values for hidden layers too, but can not calculate errors the same way in the hidden layers since they dont have a right value
-# **She provided initial weight values** BIAS NODES ARE at the input AND hidden layers 
-# 
-# After calculating the amount of error (1-0.12) = 0.88 SEEN As (z-y) z is target y is actual output
-# Apply fprime(incoming value to Y) -> (w46Y4 + w56Y5) * (z - y) = delta
-# w46 = w46 + Learning rate (given by me) *y4*delta6      y4 is calculated earlier, delta six is the delta above as it was for output 6
-# w56 + L.R * y5 * delta6
-# TO go further back and calculate delta 4, you get f'(w14Y1 + w24Y2 + w34Y3) x** w46 x delta6 ** This is the back propagation because we cant do x -y
-# do same for delta 5, but with its corresponding weights, but you will now consider w56 * delta 6
-# TO DO delta 1, f'(node*weight + node*weight of all inputs) x w14 x delta4, Carry the deltas backwards 
-# SINCE f1 is back prooagated by f4 and f5, you have to do both
-# NOW IT IS f'(node*weight + node*weight of all inputs) x w14 + delta 4 + (node*weight + node*weight of all inputs)) xw15 + delta 5
-# Now we are at the inputs, wx11 + wx11 + (learning rate * x1 * delta1)
+#This program is a neural network to regongnize handwritten numbers
+#Given a test set, will train itself to recognize up to 3 numbers (1,7,8 in the current training set)
+#After training to an accuracy of 92%, the program will write the weights of each layer into two seperate files ("inputCorrectWeights.txt and hiddenCorrectWeights.txt") to be used for testing
+#If the person using this program runs the test file, the constructed neural network will grab the weights from the files listed above, and attempt to classify each test input, writing the results into test_output.txt
 
-#Derivates, we want the derivative to be zero, Error is a parabolic fuction, and we want to find the minimum on that graph, which is where derivative is zero
-#if our derivative (or slope) is positive, we have to reduce weight, and increase it if the slope is negative
-#Error function does not necessarily have to be a parabola (like in the example), it could have many spots where the slope is zero, which could find a local minima (want global)
-# Finding the minimum here is dependent on the initial setting of weights** 
-
-# We need to check the gradient (derivative slope), we will move a small amount in the opposite direction of the gradient, and then recalculate the gradient in a new spot
-# calculate derivative of error/derivative of w
-# we have a negative now instead which means we have to take in the opposite direciton
-# on fucked slide, y is target output hw is my output -> either way we will end up not needing the derivative 
-#in the sigmoid function, g'(x) = g(x) * 1-g(x)
-#IF we use the sigmoid function as our logistic function, then we can calculate the weight using less values
+#class Node
+#This represents each specific node in the neural network
+#Value
+#Weights
+#Delta
+#Sigmoid
 class Node:
     def __init__(self, value) -> None:
         self.value = value
         self.weights = []
-        self.delta = 0 #*** Can this be zero? ***
-        self.sigmoid = None
+        self.delta = 0 
 
 
 def sigmoid(value):
@@ -151,7 +137,7 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement, epochN
                         newValues = backPropogation(inputLayer, hiddenLayer, outputLayer, answer)
 
     print(correctlyClassified / numberOfClassifications)
-    if(correctlyClassified / numberOfClassifications < 0.91):
+    if(correctlyClassified / numberOfClassifications < 0.92):
         trainNetwork(newValues[0], newValues[1], newValues[2], terminalArguement, epochNumber)
     else:
         #file = open("D:/Programming/Repo/backPropogationDigitRecognition/BackpropogationDigitRecognition/train_output.txt", "a") #laptop
@@ -159,7 +145,7 @@ def trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement, epochN
         file.write("\n")
         file.write("Accuracy: " + str(correctlyClassified) +"/" +str(numberOfClassifications) +" = "+str(((correctlyClassified/numberOfClassifications) * 100))+"%")
         file.close()
-        print(epochNumber)
+        print("epoch number"+ str(epochNumber))
         writeWeights(newValues[0], newValues[1])
         #testNetwork(newValues[0], newValues[1], newValues[2], terminalArguement[1])
 
@@ -279,40 +265,6 @@ def passForward(inputLayer, hiddenLayer, outputLayer): #reset values again someh
         nodeNumber += 1
         outputNode.value = sigmoid(outputNode.value)
         outputAnswers.append(outputNode.value) #[0] = 1 [1] = 8 [2] = 9
-    #for i in outputLayer:
-    #   print(i.value)
     return(outputAnswers)
-    
-#print(round(random.random(),2))
+
 initializeNetwork(sys.argv)
-
-inputLayer = []
-hiddenLayer = []
-outputLayer = []
-inputLayer.append(Node(-1))
-inputLayer.append(Node(1))
-inputLayer.append(Node(0))
-inputLayer.append(Node(1))
-for nodes in inputLayer:
-    for x in range(3):
-        nodes.weights.append(1)
-
-hiddenLayer.append(Node(-1))
-hiddenLayer.append(Node(None))
-hiddenLayer.append(Node(None))
-for node in hiddenLayer:
-    for y in range(3):
-        node.weights.append(2)
-        
-outputLayer.append(Node(None))
-outputLayer.append(Node(None))
-outputLayer.append(Node(None))
-
-
-#initializeWeights(inputLayer, hiddenLayer, outputLayer, ["test.txt", "test_output.txt"])
-#writeWeights(inputLayer,hiddenLayer)
-#print(passForward(inputLayer, hiddenLayer, outputLayer))
-
-#passForward(inputLayer,hiddenLayer, outputLayer)
-
-#backPropogation(inputLayer,hiddenLayer,outputLayer,[], ['0','0','1'])
