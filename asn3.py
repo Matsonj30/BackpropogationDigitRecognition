@@ -90,10 +90,10 @@ def initializeWeights(inputLayer, hiddenLayer, outputLayer, terminalArguement):
     else:   #we have not yet constructed the network, set random weights then train
         for node in inputLayer:
             for i in range(10):
-                node.weights.append(round(random.uniform(0,0.05),5)) #before it was 0,0.1
+                node.weights.append(round(random.uniform(-1,1),5)) #before it was 0,0.1
         for node in hiddenLayer:
             for i in range(3):
-                node.weights.append(round(random.uniform(0,0.05),5))  #before it was 0,0.05
+                node.weights.append(round(random.uniform(-1,1),5))  #before it was 0,0.05
         trainNetwork(inputLayer, hiddenLayer, outputLayer, terminalArguement, 0)
 #writeToFile()
 #During the testing phase, this method will write the actual output of the neural network as opposed to its expected output
@@ -329,5 +329,5 @@ def passForward(inputLayer, hiddenLayer, outputLayer): #reset values again someh
         outputNode.value = sigmoid(outputNode.value)
         outputAnswers.append(outputNode.value) #[0] = 1 [1] = 8 [2] = 9
     return(outputAnswers)
-
-initializeNetwork(sys.argv)
+x = ["GRR", "train.txt", "train_output.txt"]
+initializeNetwork(x)
